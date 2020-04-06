@@ -1,0 +1,6 @@
+{
+    "hooks": {
+      "prepare-commit-msg": "bash ./git-commit-message.sh",
+      "pre-commit": "lint-staged"
+    }
+}
