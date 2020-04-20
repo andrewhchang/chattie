@@ -70,7 +70,7 @@ function postInvite(users) {
             type: 'section',
             text: {
                 type: 'mrkdwn',
-                text: `_${(JSON.parse(body).joke).toString()}_`
+                text: `_${(JSON.parse(body).joke).toString().replace(`\n`,`_\n_`)}_`
             }
         }
         
