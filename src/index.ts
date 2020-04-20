@@ -65,12 +65,15 @@ function postInvite(users) {
         }
     }
 
-    request.get('https://sv443.net/jokeapi/v2/joke/Programming,Miscellaneous?blacklistFlags=nsfw,religious,political,racist,sexist&type=single', (error, response, body) => {
+    request.get({
+        url: 'https://icanhazdadjoke.com/',
+        headers: {'accept': 'application/json'}
+        }, (error, response, body) => {
         const jokeBlock = {
             type: 'section',
             text: {
                 type: 'mrkdwn',
-                text: `_${(JSON.parse(body).joke).toString().replace(`\n`,`_\n_`)}_`
+                text: `_${JSON.parse(body).joke.toString()}_`
             }
         }
         
