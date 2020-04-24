@@ -1,6 +1,5 @@
 {
     "src/**/*.{ts,tsx}":[
-        "tslint",
-        "git add"
+        "tslint"
     ]
 }
