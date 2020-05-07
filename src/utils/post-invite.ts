@@ -2,7 +2,7 @@ import * as request from 'request'
 import { Block } from '../models/interactive-msg'
 import { newInteractiveMessage } from './msg-constructor'
 import * as dotenv from 'dotenv'
-// import { sleep } from './helpers'
+import * as AsyncLock from 'async-lock'
 
 /* tslint:disable: no-console */
 dotenv.config()
@@ -40,44 +40,53 @@ const meetingButton: Block = {
         }
     ]
 }
+const lock = new AsyncLock
 
 export async function postInvite(users) {
-    // "Person 1 and Person 2 is/are"
-    const names = users.slice(0, users.length - (' on this call'.length))
+    lock.acquire("key", (done) => {
+        
+        // "Person 1 and Person 2 is/are"
+        const names = users.slice(0, users.length - (' on this call'.length))
 
-    console.log('Posting to slack...')
-
-    const participantBlock = {
-        type: 'section',
-        text: {
-            type: 'mrkdwn',
-            text: `${names} in the kitchen!  :spoon:`
-        }
-    }
-
-    request.get({
-        url: 'https://icanhazdadjoke.com/',
-        headers: {'accept': 'application/json'}
-        }, (error, response, body) => {
-        const jokeBlock = {
+        console.log('Posting to slack...')
+        const participantBlock = {
             type: 'section',
             text: {
                 type: 'mrkdwn',
-                text: `_${JSON.parse(body).joke.toString()}_`
+                text: `${names} in the kitchen!  :spoon:`
             }
         }
-        
-        const interactiveMessage = newInteractiveMessage(process.env.CHANNEL_NAME, `${names} in the kitchen!`, [ participantBlock, jokeBlock, welcomeBlock, inviteBlock, meetingButton])
-        
-        request({
-            url: 'https://slack.com/api/chat.postMessage',
-            method: 'POST',
-            body: `${JSON.stringify(interactiveMessage)}`,
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'content-type': 'application/json'
+
+        try {
+            request.get({
+            url: 'https://icanhazdadjoke.com/',
+            headers: {'accept': 'application/json'}
+            }, (error, response, body) => {
+            const jokeBlock = {
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: `\`\`\`${JSON.parse(body).joke.toString()}\`\`\``
+                }
             }
+            
+            const interactiveMessage = newInteractiveMessage(process.env.SLACK_CHANNEL_NAME, `${names} in the kitchen!`, [ participantBlock, jokeBlock, welcomeBlock, inviteBlock, meetingButton])
+
+            request({
+                url: 'https://slack.com/api/chat.postMessage',
+                method: 'POST',
+                body: `${JSON.stringify(interactiveMessage)}`,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'content-type': 'application/json'
+                }
+            })
         })
-    })
-    // await sleep(300000)
+        done()
+    } catch (err) {
+        console.log(err)
+    }}, (err, ret) => {
+        err ? console.log(err) : console.log('No error')
+        ret ? console.log(ret) : console.log('No ret')
+    }, {})
 }

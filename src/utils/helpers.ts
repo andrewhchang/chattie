@@ -5,12 +5,10 @@ export function sleep(ms) {
 }
 
 export function quantifyString(participantString) {
-    console.log("quantifyString has been hit")
     const participants = participantString.slice(0, participantString.length - (' on this call'.length))
                                                 .replace(/\ and\ |\,\ /g, ",")
                                                 .replace(/\ are|\ is/g, "")
                                                 .split(",")
-    console.log(participants)    
     const lastMember = participants[participants.length - 1]
 
     if (lastMember.includes(' more')) {
