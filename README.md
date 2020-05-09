@@ -1,6 +1,6 @@
 # Chattie
 
-Chattie is a Node.js web app written in Typescript that monitors a "Google Hangouts Meet" meeting via a headless chrome instance to monitor meeting participants integrates with a Slack workspace to automatically notify a channel of choice when a user enters the meeting.
+Chattie is a Node.js web app written in Typescript that monitors a "Google Hangouts Meet" meeting via a headless chrome instance to monitor meeting participants. It integrates with a Slack workspace to automatically notify a channel of choice when a user enters the meeting.
 
 ## Requirements
   - Node.js
