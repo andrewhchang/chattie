@@ -1,5 +1,4 @@
-import puppeteer from 'puppeteer-extra'
-
+import * as dotenv from 'dotenv'
 /* tslint:disable: no-console */
 // waitForNetworkIdle source: https://github.com/puppeteer/puppeteer/issues/1353 @aslushnikov
 export function waitForNetworkIdle(page, timeout, maxInflightRequests = 0) {
@@ -37,6 +36,7 @@ export function waitForNetworkIdle(page, timeout, maxInflightRequests = 0) {
 
 
 export async function googleAuthenticate(page) {
+  dotenv.config()
   const navigationPromise = page.waitForNavigation()
 
   // visit google sign in
@@ -50,7 +50,7 @@ export async function googleAuthenticate(page) {
   await page.click('input[type="email"]')
   await navigationPromise
   console.log('Entering email...')
-  await page.type('input[type="email"]', process.env.GOOGLE_ACCOUNT_EMAIL)
+  await page.type('input[type="email"]', process.env.GOOGLE_ACCOUNT_EMAIL.toString())
 
   // next
   await page.waitForSelector('#identifierNext')
@@ -80,41 +80,4 @@ export async function googleAuthenticate(page) {
   } catch (err) {
       console.log("No confirm page found. Navigating to meeting...")
   }
-}
-
-export async function sniffUsers(url) {
-  const StealthPlugin = require('puppeteer-extra-plugin-stealth')
-  const chromium = require('chrome-aws-lambda')
-  puppeteer.use(StealthPlugin())
-  
-  return chromium.puppeteer.launch(
-    {
-      executablePath: await chromium.executablePath,
-      args: chromium.args,
-      defaultViewPort: chromium.defaultViewPort,
-      headless: chromium.headless
-    }).then(async browser => {
-      const page = await browser.newPage()
-      
-      // authenticate google account
-      await googleAuthenticate(page)
-      page.close()
-
-      // visit meeting room
-      const newPage = await browser.newPage()
-      await newPage.goto(url)
-      console.log("Waiting...")
-      await waitForNetworkIdle(newPage, 2000, 2)
-      
-      // find users
-      console.log("Finding users...")
-      const divText = await newPage.evaluate(() => document.querySelector('div').innerText)
-      console.log("Parsing users...")
-      console.log(`Found: ${(divText.split('\n').filter(text => (text.includes('on this call') || text.includes('one here'))))}`)
-      const users = (divText.split('\n').filter(text => text.includes('on this call')))
-      browser.close()
-
-      return users.length > 0 ? users[0] : null
-    }
-  )
 }
