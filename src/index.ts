@@ -47,7 +47,7 @@ return chromium.puppeteer.launch(
     // monitor page for changes
     let count = 0
     while (true) {
-        await sleep(300000)
+        await sleep(10000)
         count = await newPage.evaluate(async(injectedCount) => {            
             let foundUsers = ""
 

@@ -82,7 +82,7 @@ export async function postInvite(users) {
                 }
             })
         })
-        done()
+        setTimeout(() => done(), 60000)
     } catch (err) {
         console.log(err)
     }}, (err, ret) => {
